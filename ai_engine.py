@@ -6,15 +6,21 @@ from typing import List, Optional
 from pydantic import BaseModel, Field, field_validator
 from openai import AsyncOpenAI
 from redis.asyncio import Redis
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- CONFIGURATION ---
 # ⚠ Load API Key from environment variable for security
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "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")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
-MODEL_NAME = "meta/llama-3.1-8b-instruct"
+MODEL_NAME = os.getenv("NVIDIA_MODEL_NAME", "meta/llama-3.1-8b-instruct")
 
 # --- CLIENTS ---
-aclient = AsyncOpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=NVIDIA_API_KEY)
+aclient = (
+    AsyncOpenAI(base_url="https://integrate.api.nvidia.com/v1", api_key=NVIDIA_API_KEY)
+    if NVIDIA_API_KEY else None
+)
 redis_client = Redis.from_url(REDIS_URL, encoding="utf-8", decode_responses=True)
 
 # --- DOMAIN MODELS ---
@@ -72,6 +78,15 @@ def extract_json(text: str) -> str:
 async def analyze_ticket_with_llm(subject: str, description: str) -> TicketAnalysis:
     """ Calls the AI model to classify the ticket. """
     full_text = f"Subject: {subject}\nDescription: {description}"
+
+    if aclient is None:
+        return TicketAnalysis(
+            summary="Manual Review",
+            category="software",
+            priority="medium",
+            sentiment="Neutral",
+            suggested_steps=["Set NVIDIA_API_KEY", "Retry AI analysis"]
+        )
     
     try:
         response = await aclient.chat.completions.create(

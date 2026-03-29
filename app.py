@@ -5,6 +5,9 @@ from datetime import datetime
 from pathlib import Path
 from functools import wraps
 from inspect import iscoroutinefunction
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # --- IMPORT CHATBOT ---
 from chatbot import get_chat_response
@@ -23,7 +26,7 @@ from ai_engine import analyze_ticket_with_llm
 # ------------------ APP INIT ------------------
 app = Flask(__name__, static_folder="static")
 CORS(app)
-app.secret_key = secrets.token_hex(24)
+app.secret_key = os.getenv("FLASK_SECRET_KEY", secrets.token_hex(24))
 
 BASE_DIR = Path(__file__).resolve().parent
 instance_dir = BASE_DIR / "instance"
@@ -35,9 +38,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 AUTO_VERIFY_REGISTRATION = True
-SUPER_ADMIN_EMAIL = "rajeevkulkarni1111@gmail.com"
-EMAIL_ADDRESS = "rajeevkulkarni1111@gmail.com"
-EMAIL_PASSWORD = "kvzo eopb vwrj xxjd"
+SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "admin@example.com")
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 # ------------------ HELPER FUNCTIONS ------------------
 def is_valid_email_domain(email):
@@ -49,6 +52,9 @@ def is_valid_email_domain(email):
     except IndexError: return False
 
 def send_raw_email(to_email, subject, body):
+    if not EMAIL_ADDRESS or not EMAIL_PASSWORD:
+        print("Email skipped: EMAIL_ADDRESS or EMAIL_PASSWORD is not configured.")
+        return
 
     msg = MIMEText(body)
     msg["Subject"] = subject
