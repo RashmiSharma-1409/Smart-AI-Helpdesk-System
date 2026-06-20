@@ -4,9 +4,6 @@
 
 <h1 align="center">🎫 TicketEasy — AI-Powered IT Helpdesk</h1>
 
-<p align="center">
-  <strong>by Team TechSlayers</strong> &nbsp;|&nbsp; Smart Innovation Hackathon (SIH) Project
-</p>
 
 <p align="center">
   <a href="#features">Features</a> •
