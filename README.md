@@ -110,7 +110,7 @@ Designed for organizations like **PGCIL (PowerGrid Corporation of India)**, Tick
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Rajeevkulkarni1111/TicketEasy_Tech_Slayers.git
+git clone https://github.com/RashmiSharma-1409/TicketEasy_Tech_Slayers.git
 cd TicketEasy_Tech_Slayers
 ```
 
